@@ -2,17 +2,19 @@ import cv2
 from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from matplotlib import pyplot as plt
 from image_processing import *
 
 display_image = None
 canvas = None
 img_container = None
+current_image_np = None
 
 def show_on_canvas(image_cv):
-    global display_image
+    global display_image, current_image_np
     if image_cv is None:
         return
-    set_last_image(image_cv.copy())
+    current_image_np = image_cv.copy()
     if len(image_cv.shape) == 2:
         image_pil = Image.fromarray(image_cv).convert("L")
     else:
@@ -30,21 +32,29 @@ def open_image():
     show_on_canvas(img)
 
 def save_image():
-    image = get_last_image()
-    if image is None:
+    if current_image_np is None:
         print("⚠️ Tidak ada gambar yang bisa disimpan.")
         return
     save_path = filedialog.asksaveasfilename(defaultextension=".png",
-                                             filetypes=[("PNG Image", "*.png"),
-                                                        ("JPEG Image", "*.jpg"),
-                                                        ("Bitmap", "*.bmp")],
-                                             title="Simpan Gambar")
+                                             filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg")])
     if save_path:
-        if len(image.shape) == 2:
-            cv2.imwrite(save_path, image)
+        if len(current_image_np.shape) == 2:
+            img_to_save = current_image_np
         else:
-            cv2.imwrite(save_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
-        print(f"✅ Gambar berhasil disimpan di: {save_path}")
+            img_to_save = cv2.cvtColor(current_image_np, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(save_path, img_to_save)
+        print(f"✅ Gambar berhasil disimpan: {save_path}")
+
+def show_histogram():
+    gray = get_gray_histogram()
+    if gray is not None:
+        plt.figure("Histogram Grayscale")
+        plt.hist(gray.ravel(), 256, [0, 256])
+        plt.title("Histogram Grayscale")
+        plt.xlabel("Intensitas")
+        plt.ylabel("Jumlah Piksel")
+        plt.grid()
+        plt.show()
 
 def create_gui():
     global canvas, img_container
