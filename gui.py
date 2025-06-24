@@ -63,7 +63,7 @@ def create_gui():
     root.geometry("520x750")
     root.resizable(False, False)
 
-    Label(root, text="📸 Pengolahan Citra Digital", font=("Arial", 16, "bold")).pack(pady=10)
+    Label(root, text="📸 CitraVision", font=("Arial", 16, "bold")).pack(pady=10)
     canvas = Canvas(root, width=300, height=300, bg="gray")
     canvas.pack()
     img_container = canvas.create_image(0, 0, anchor=NW)
